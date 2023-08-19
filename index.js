@@ -3,12 +3,23 @@ const mongoose = require('mongoose');
 const app = express();
 
 const PORT = 3000;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Create product shcema.
 const productSchema = mongoose.Schema({
-    title: String,
-    price: Number,
-    description: String,
+    title: {
+        type: String,
+        required: true
+    },
+    price: {
+        type: Number,
+        required: true
+    },
+    description: {
+        type: String,
+        required: true
+    },
     createAt: {
         type: Date,
         default: Date.now
@@ -36,3 +47,48 @@ app.listen(PORT, async () => {
 app.get('/', (req, res) => {
     res.send("<h1>Hello developer i am from home route.</h1>")
 });
+
+// Post products data.
+app.post('/products', async (req, res) => {
+    try {
+        const newProduct = new product({
+            title: req.body.title,
+            price: req.body.price,
+            description: req.body.description,
+        });
+        const productData = await newProduct.insertMany();
+
+        res.status(201).send({ productData });
+    } catch (error) {
+        res.status(500).send({ message: error.message })
+    }
+});
+
+// Get products data.
+app.get('/products', async (req, res) => {
+    try {
+        const allProducts = await product.find();
+        if (allProducts) {
+            res.status(200).send({ allProducts })
+        } else {
+            res.status(404).send({ message: "Products not found" })
+        }
+    } catch (error) {
+        res.status(500).send({ message: error.message })
+    }
+})
+
+// Get single data according to id.
+app.get('/products/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const allProducts = await product.findOne({ _id: id });
+        if (allProducts) {
+            res.status(200).send({ allProducts })
+        } else {
+            res.status(404).send({ message: "Products not found" })
+        }
+    } catch (error) {
+        res.status(500).send({ message: error.message })
+    }
+})
