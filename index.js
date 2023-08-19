@@ -67,7 +67,7 @@ app.post('/products', async (req, res) => {
 // Get products data.
 app.get('/products', async (req, res) => {
     try {
-        const allProducts = await product.find();
+        const allProducts = await product.find({ price: { $lte: 60 } });
         if (allProducts) {
             res.status(200).send({ allProducts })
         } else {
@@ -91,4 +91,34 @@ app.get('/products/:id', async (req, res) => {
     } catch (error) {
         res.status(500).send({ message: error.message })
     }
-})
+});
+
+// Delete a document using id.
+app.delete('/products/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const deleteProduct = await product.deleteOne({ _id: id });
+        if (deleteProduct) {
+            res.status(200).send({ deleteProduct })
+        } else {
+            res.status(404).send({ message: "something went to wrong." })
+        }
+    } catch (error) {
+        res.status(500).send({ message: error.message })
+    }
+});
+
+// Update a document using id.
+app.put('/products/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const updateProduct = await product.updateOne({ _id: id }, { $set: { price: 80 } });
+        if (updateProduct) {
+            res.status(200).send({ updateProduct })
+        } else {
+            res.status(404).send({ message: "something went to wrong." })
+        }
+    } catch (error) {
+        res.status(500).send({ message: error.message })
+    }
+});
